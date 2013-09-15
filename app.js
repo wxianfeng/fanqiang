@@ -3,13 +3,14 @@
  * Module dependencies.
  */
 
-var express = require('express');
-var routes = require('./routes');
-var user = require('./routes/user');
-var http = require('http');
-var path = require('path');
+ var express = require('express');
+ var routes = require('./routes');
+ var user = require('./routes/user');
+ var http = require('http');
+ var path = require('path');
+ var mysql = require('mysql');
 
-var app = express();
+ var app = express();
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -24,12 +25,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+	app.use(express.errorHandler());
 }
+
+var connection = mysql.createConnection({
+	host     : 'localhost',
+	user     : 'root',
+	password : 'root',
+	database: "fanqiang_development"
+});
+
+connection.connect();
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.post('/users', function(req, res){
+	connection.query("select * from migrations",function(err, rows){
+		console.log(rows);
+	})
+	res.send(req.body);
+});
 
 http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+	console.log('Express server listening on port ' + app.get('port'));
 });
