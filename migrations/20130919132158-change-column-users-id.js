@@ -2,11 +2,8 @@ var dbm = require('db-migrate');
 var type = dbm.dataType;
 
 exports.up = function(db, callback) {
-	db.createTable("users",{
-		id: { type: 'int', primarykey: true, autoIncrement: true },
-		email: 'string',
-		created_at: 'datetime',
-		updated_at: 'datetime'
+	db.changeColumn('users','id',{
+		type: 'int', primarykey: true, autoIncrement: true
 	},callback)
 };
 

@@ -9,6 +9,7 @@
  var http = require('http');
  var path = require('path');
  var mysql = require('mysql');
+ var dns = require('dns');
 
  var app = express();
 
@@ -40,10 +41,26 @@ connection.connect();
 app.get('/', routes.index);
 app.get('/users', user.list);
 app.post('/users', function(req, res){
-	connection.query("select * from migrations",function(err, rows){
-		console.log(rows);
-	})
-	res.send(req.body);
+	var email = req.param('email');
+	var domain = email.split('@')[1];
+	dns.resolve(domain,'MX',function(err, address){
+		if (err)
+			res.send({ retCode:0, error: '啊哦,小伙伴,该邮件地址没有找到邮件服务器.' })
+		else {
+			connection.query("select * from users where email = ?", [email] ,function(err, result){
+				if (result && result.length > 0){
+					res.send({ retCode: 0, error: '啊哦,小伙伴,请不要重复申请.' });
+				}else{
+					var sql = "insert into users set ?"
+					var data = { email: email, created_at: new Date() };
+					connection.query(sql,data,function(err, result){
+						if (!err)
+							res.send({ retCode: 1 })
+					});
+				}
+			});
+		}
+	});
 });
 
 http.createServer(app).listen(app.get('port'), function(){
