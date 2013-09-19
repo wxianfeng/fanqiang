@@ -1,0 +1,13 @@
+var config = {
+
+	mail: {
+		host: 'smtp.netposa.com',
+		user: 'wangxianfeng@netposa.com',
+		password: '123456',
+		from: "FanQiang.me <wangxianfeng@netposa.com>",
+		to: "wang.fl1429@gmail.com"
+	}
+
+};
+
+module.exports = config;

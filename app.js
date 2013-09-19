@@ -10,6 +10,9 @@
  var path = require('path');
  var mysql = require('mysql');
  var dns = require('dns');
+ var nodemailer = require("nodemailer");
+ var _ = require("underscore");
+ var config = require('./config/config')
 
  var app = express();
 
@@ -38,6 +41,21 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+// smtp options: https://github.com/andris9/Nodemailer#setting-up-smtp
+var smtpTransport = nodemailer.createTransport("SMTP",{
+	host: config.mail.host,
+	auth: {
+		user: config.mail.user,
+		pass: config.mail.password
+	}
+});
+
+var mailOptions = {
+	from: config.mail.from,
+	to: config.mail.to,
+	subject: "Hey,少年,有人要买VPN啦"
+};
+
 app.get('/', routes.index);
 app.get('/users', user.list);
 app.post('/users', function(req, res){
@@ -54,8 +72,10 @@ app.post('/users', function(req, res){
 					var sql = "insert into users set ?"
 					var data = { email: email, created_at: new Date() };
 					connection.query(sql,data,function(err, result){
-						if (!err)
-							res.send({ retCode: 1 })
+						if (!err){
+							smtpTransport.sendMail(_.extend(mailOptions,{ text: "申请人的email:" + email }));
+							res.send({ retCode: 1 });
+						}
 					});
 				}
 			});
