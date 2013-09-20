@@ -17,7 +17,7 @@
  var app = express();
 
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3009);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(express.favicon());
@@ -56,7 +56,7 @@ var mailOptions = {
 	subject: "Hey,少年,有人要买VPN啦"
 };
 
-app.get('/', routes.index);
+// app.get('/', routes.index);
 app.get('/users', user.list);
 app.post('/users', function(req, res){
 	var email = req.param('email');
